@@ -2,6 +2,7 @@ import React, { useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import firebase from "../../firebase";
+import md5 from "md5";
 
 function RegisterPage() {
   const {
@@ -25,6 +26,20 @@ function RegisterPage() {
         .auth()
         .createUserWithEmailAndPassword(data.email, data.password);
       console.log(createdUser);
+
+      // 유저 정보에 이름, 유니크한 사진도 저장
+      await createdUser.user.updateProfile({
+        displayName: data.name,
+        photoURL: `http://gravatar.com/avatar/${md5(
+          createdUser.user.email
+        )}?d=identicon`,
+      });
+
+      // Firebase 데이터베이스에 저장
+      await firebase.database().ref("users").child(createdUser.user.uid).set({
+        name: createdUser.user.displayName,
+        image: createdUser.user.photoURL,
+      });
       setLoading(false);
     } catch (error) {
       setErrorFromSubmit(error.message);
