@@ -7,6 +7,9 @@ import { set } from "react-hook-form";
 function MessageForm() {
   const chatRoom = useSelector((state) => state.chatRoom.currentChatRoom);
   const user = useSelector((state) => state.user.currentUser);
+  const isPrivateChatRoom = useSelector(
+    (state) => state.chatRoom.isPrivateChatRoom
+  );
   const [content, setContent] = useState("");
   const [errors, setErrors] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -63,11 +66,19 @@ function MessageForm() {
     inputOpenImageRef.current.click();
   };
 
+  const getPath = () => {
+    if (isPrivateChatRoom) {
+      return `/message/private/${chatRoom.id}`;
+    } else {
+      return `/message/public/`;
+    }
+  };
+
   const handleUploadImage = (event) => {
     const file = event.target.files[0];
     if (!file) return;
 
-    const filePath = `/message/public/${file.name}`;
+    const filePath = `${getPath()}/${file.name}`;
     const metadata = file.type;
     setLoading(true);
 
