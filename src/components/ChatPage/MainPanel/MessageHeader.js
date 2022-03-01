@@ -10,6 +10,7 @@ import {
   useAccordionButton,
   Card,
   Button,
+  Media,
 } from "react-bootstrap";
 import { FaLock, FaLockOpen } from "react-icons/fa";
 import { MdFavorite, MdFavoriteBorder } from "react-icons/md";
@@ -25,6 +26,7 @@ function MessageHeader({ handleSearchChange }) {
   const [isFavorited, setIsFavorited] = useState(false);
   const usersRef = firebase.database().ref("users");
   const user = useSelector((state) => state.user.currentUser);
+  const userPosts = useSelector((state) => state.chatRoom.userPosts);
 
   useEffect(() => {
     if (chatRoom && user) {
@@ -90,6 +92,27 @@ function MessageHeader({ handleSearchChange }) {
       setIsFavorited((prev) => !prev);
     }
   };
+
+  const renderUserPosts = (userPosts) =>
+    Object.entries(userPosts)
+      .sort((a, b) => b[1].count - a[1].count)
+      .map(([key, val], i) => (
+        <div key={i} style={{ display: "flex" }}>
+          <img
+            style={{ borderRadius: 25 }}
+            width={48}
+            height={48}
+            className="mr-3"
+            src={val.image}
+            alt={val.name}
+          />
+          <div>
+            <h6>{key}</h6>
+            <p>{val.count} 개</p>
+          </div>
+        </div>
+      ));
+
   return (
     <div
       style={{
@@ -138,7 +161,12 @@ function MessageHeader({ handleSearchChange }) {
         </Row>
         <div style={{ display: "flex", justifyContent: "flex-end" }}>
           <p>
-            <Image /> user name
+            <Image
+              src={chatRoom && chatRoom.createdBy.image}
+              roundedCircle
+              style={{ width: "30px", height: "30px" }}
+            />{" "}
+            {chatRoom && chatRoom.createdBy.name}
           </p>
         </div>
         <Row>
@@ -146,10 +174,10 @@ function MessageHeader({ handleSearchChange }) {
             <Accordion>
               <Card>
                 <Card.Header style={{ padding: "0 1rem" }}>
-                  <CustomToggle eventKey="0">Click me!</CustomToggle>
+                  <CustomToggle eventKey="0">Description</CustomToggle>
                 </Card.Header>
                 <Accordion.Collapse eventKey="0">
-                  <Card.Body>Hello! I'm the body</Card.Body>
+                  <Card.Body>{chatRoom && chatRoom.description}</Card.Body>
                 </Accordion.Collapse>
               </Card>
             </Accordion>
@@ -158,10 +186,12 @@ function MessageHeader({ handleSearchChange }) {
             <Accordion>
               <Card>
                 <Card.Header style={{ padding: "0 1rem" }}>
-                  <CustomToggle eventKey="0">Click me!</CustomToggle>
+                  <CustomToggle eventKey="0">Posts Count</CustomToggle>
                 </Card.Header>
                 <Accordion.Collapse eventKey="0">
-                  <Card.Body>Hello! I'm the body</Card.Body>
+                  <Card.Body>
+                    {userPosts && renderUserPosts(userPosts)}
+                  </Card.Body>
                 </Accordion.Collapse>
               </Card>
             </Accordion>
