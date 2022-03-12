@@ -17,6 +17,7 @@ function MessageForm() {
   const messagesRef = firebase.database().ref("messages"); // firebase database에서 messages라는 컬렉션 참조
   const inputOpenImageRef = useRef();
   const storageRef = firebase.storage().ref();
+  const typingRef = firebase.database().ref("typing");
 
   const handleChange = (event) => {
     setContent(event.target.value);
@@ -50,7 +51,7 @@ function MessageForm() {
     // firebase에 메시지를 저장하는 부분
     try {
       await messagesRef.child(chatRoom.id).push().set(createMessage());
-      setLoading(false);
+      typingRef.child(chatRoom.id).child(user.id).remove();
       setContent("");
       setErrors([]);
     } catch (error) {
@@ -119,11 +120,20 @@ function MessageForm() {
     }
   };
 
+  const handleKeyDown = () => {
+    if (content) {
+      typingRef.child(chatRoom.id).child(user.uid).set(user.displayName);
+    } else {
+      typingRef.child(chatRoom.id).child(user.uid).remove();
+    }
+  };
+
   return (
     <div>
       <Form onSubmit={handleSubmit}>
         <Form.Group controlId="exampleForm.ControlTextarea1">
           <Form.Control
+            onKeyDown={handleKeyDown}
             value={content}
             onChange={handleChange}
             as="textarea"

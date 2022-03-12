@@ -10,7 +10,6 @@ import {
   useAccordionButton,
   Card,
   Button,
-  Media,
 } from "react-bootstrap";
 import { FaLock, FaLockOpen } from "react-icons/fa";
 import { MdFavorite, MdFavoriteBorder } from "react-icons/md";
@@ -159,16 +158,18 @@ function MessageHeader({ handleSearchChange }) {
             </InputGroup>
           </Col>
         </Row>
-        <div style={{ display: "flex", justifyContent: "flex-end" }}>
-          <p>
-            <Image
-              src={chatRoom && chatRoom.createdBy.image}
-              roundedCircle
-              style={{ width: "30px", height: "30px" }}
-            />{" "}
-            {chatRoom && chatRoom.createdBy.name}
-          </p>
-        </div>
+        {!isPrivateChatRoom && (
+          <div style={{ display: "flex", justifyContent: "flex-end" }}>
+            <p>
+              <Image
+                src={chatRoom && chatRoom.createdBy.image}
+                roundedCircle
+                style={{ width: "30px", height: "30px" }}
+              />{" "}
+              {chatRoom && chatRoom.createdBy.name}
+            </p>
+          </div>
+        )}
         <Row>
           <Col>
             <Accordion>
